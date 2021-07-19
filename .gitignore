@@ -1,5 +1,6 @@
 venv/
 nasbench.egg-info/
+nasbench
 
 
 *.pyc
