@@ -4,55 +4,35 @@ from __future__ import absolute_import
 
 from flask import Flask, request
 from flask_restx import Resource, Api, reqparse
+from flask_cors import CORS
 
 from absl import app as absl_app
 from nasbench import api as nasbench_api
 
+from module.querying import get_data_from_nasbench
+from module.sharpley_values import sharpley_values
+
 NASBENCH_TFRECORD = './nasbench_only108.tfrecord'
-
-INPUT = 'input'
-OUTPUT = 'output'
-CONV1X1 = 'conv1x1-bn-relu'
-CONV3X3 = 'conv3x3-bn-relu'
-MAXPOOL3X3 = 'maxpool3x3'
-
-
-def get_data_from_nasbench(input_matrix):
-
-    nasbench = nasbench_api.NASBench(NASBENCH_TFRECORD)
-
-    model_spec = nasbench_api.ModelSpec(
-        matrix=input_matrix,
-        ops=[INPUT, CONV1X1, CONV3X3, CONV3X3, CONV3X3, MAXPOOL3X3, OUTPUT]
-    )
-
-    print('Querying an Inception-like model.')
-    data = nasbench.query(model_spec)
-    print(data)
-    dic = {
-        "trainable_parameters" : data['trainable_parameters'],
-        "training_time" : data['training_time'],
-        "train_accuracy" : data['train_accuracy'],
-        "validation_accuracy" : data["validation_accuracy"],
-        "test_accuracy" : data["test_accuracy"]
-    }
-    print(dic)
-    return dic
-
-
+nasbench = nasbench_api.NASBench(NASBENCH_TFRECORD)
 app = Flask(__name__)
+CORS(app)
 api = Api(app)
 
 
-@api.route('/nasbench')
-class Nasbench(Resource):
-    def get(self):
+@api.route('/querying')
+class Querying(Resource):
+    def post(self):
         input_matrix = request.json.get('matrix')
-        print(input_matrix)
-        return get_data_from_nasbench(input_matrix)
+        ops = request.json.get('ops')
+        return get_data_from_nasbench(nasbench_api, nasbench, input_matrix, ops)
 
+@api.route('/overview/edge-sharpley-value')
+class EdgeSharpleyValue(Resource):
+    def get(self):
+        return sharpley_values
+       
 
 if __name__ == '__main__':
-    app.run(debug=True, host=0.0.0.0, port=8080)
+    app.run(debug=True, host='0.0.0.0', port=5000)
 
 
