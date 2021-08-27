@@ -1,9 +1,8 @@
 venv/
 nasbench.egg-info/
-module/__pycache__
 *.pyc
-
 CONTRIBUTING.md
 example.py
 ngrok.exe
-nasbench_only108.tfrecord
+*.ipynb
+.DS_Store
