@@ -1,4 +1,5 @@
 from __future__ import division, print_function, absolute_import
+from numpy.core.records import array
 
 from starlette.responses import RedirectResponse
 
@@ -17,7 +18,16 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
 from pydantic import BaseModel
-from typing import Optional
+from typing import Dict, List, Optional
+
+
+class Query(BaseModel):
+    matrix : List[int]
+    ops : List[str]
+
+class PartialGraph(BaseModel):
+    node_data : List[Dict]
+    edge_data : List[Dict]
 
 
 if not os.path.isfile('./nasbench_only108.tfrecord'):
@@ -43,19 +53,15 @@ app.add_middleware(
 )
 
 @app.post('/querying')
-async def get_querying(request: Request):
-    body = request.body()
-    input_matrix = body.get('matrix')
-    ops = body.get('ops')
-    return querying(nasbench_api, nasbench, input_matrix, ops)
+async def get_querying(item : Query):
+    item = item.dict()
+    return querying(nasbench_api, nasbench, item['matirix'], item['ops'])
 
 
 @app.post('/recommendation')
-async def get_recommend_cell(request: Request):
-    body = request.body()
-    edge_data = body.get('edge_data')
-    node_data = body.get('node_data')
-    return recommend_cell(nasbench, edge_data, node_data)
+async def get_recommend_cell(item : PartialGraph):
+    item = item.dict()
+    return recommend_cell(nasbench, item['edge_data'], item['node_data'])
 
 @app.get('/overview/edge-sharpley-value')
 async def get_edge_sharpley_value():
