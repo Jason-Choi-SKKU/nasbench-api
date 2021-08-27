@@ -1,0 +1,43 @@
+.svg-container {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    padding-bottom: 75%; /* aspect ratio */
+    vertical-align: top;
+    overflow: hidden;
+  }
+.svg-content-responsive {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.idc {
+  font-weight:bold;
+  font-family:"Rajdhani", sans-serif
+ }
+ .lab {
+  font-family:"Rajdhani", sans-serif
+ }
+
+ a {
+  text-decoration:none
+ }
+ a:hover {
+  text-decoration:underline
+ }
+body {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+button {
+  font-size: 12;
+}
+
+#recommend-accuracy{
+  text-align: center;
+  font-size: 7;
+}
