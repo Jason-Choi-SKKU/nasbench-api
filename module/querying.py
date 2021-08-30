@@ -23,7 +23,7 @@ def querying(nasbench_api, nasbench, input_matrix, ops):
     return dic
 
 
-def recommend_cell(nasbench, edge_data, node_data):
+def recommend_cell(nasbench, node_data, edge_data):
     ops_type = [node['type'] for node in node_data]
     ops_id = [node['id'] for node in node_data]
     result = []

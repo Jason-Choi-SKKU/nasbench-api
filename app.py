@@ -1,11 +1,6 @@
 from __future__ import division, print_function, absolute_import
-from numpy.core.records import array
-
 from starlette.responses import RedirectResponse
 
-
-from module.sharpley_values import sharpley_values
-from module.querying import querying, recommend_cell
 import json, os, requests
 
 
@@ -21,8 +16,11 @@ from pydantic import BaseModel
 from typing import Dict, List, Optional
 
 
+from module.sharpley_values import sharpley_values
+from module.querying import querying, recommend_cell
+
 class Query(BaseModel):
-    matrix : List[int]
+    matrix : List[List]
     ops : List[str]
 
 class PartialGraph(BaseModel):
@@ -32,7 +30,7 @@ class PartialGraph(BaseModel):
 
 if not os.path.isfile('./nasbench_only108.tfrecord'):
     print('There is no tfrecord file. Downloading...')
-    req = requests.get('https: // storage.googleapis.com/nasbench/nasbench_only108.tfrecord', allow_redirects=True)
+    req = requests.get('https://storage.googleapis.com/nasbench/nasbench_only108.tfrecord', allow_redirects=True)
     open('nasbench_only108.tfrecord', 'wb').write(req.content)
 
 
@@ -54,14 +52,12 @@ app.add_middleware(
 
 @app.post('/querying')
 async def get_querying(item : Query):
-    item = item.dict()
-    return querying(nasbench_api, nasbench, item['matirix'], item['ops'])
+    return querying(nasbench_api, nasbench, item.matrix, item.ops)
 
 
 @app.post('/recommendation')
 async def get_recommend_cell(item : PartialGraph):
-    item = item.dict()
-    return recommend_cell(nasbench, item['edge_data'], item['node_data'])
+    return recommend_cell(nasbench, item.node_data, item.edge_data)
 
 @app.get('/overview/edge-sharpley-value')
 async def get_edge_sharpley_value():
